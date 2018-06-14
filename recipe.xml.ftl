@@ -144,6 +144,9 @@
         <copy from="root/res/values/colors.xml"
                 to="${escapeXmlAttribute(resOut)}/values/colors.xml" />
     </#if>
+<#else>            
+    <instantiate from="root/gradle.properties.ftl"
+                   to="${escapeXmlAttribute(projectOut)}/gradle.properties" />    
 </#if>
 
 <#if hasInstantAppWrapper || isBaseFeature>

@@ -36,3 +36,56 @@ dependencies {
   <@shared.watchProjectDependencies/>
 </#if>
 }
+
+<#if isLibraryProject>
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.project {
+                groupId = GROUP_ID
+                artifactId = ARTIFACT_ID
+                version = VERSION_NAME
+
+                repositories {
+                    repository {
+                        id = 'souche'
+                        name = 'artifactory'
+                        url = PUBLIC_REPOSITORY_URL
+                        snapshots {
+                            enabled = 'true'
+                            updatePolicy = 'interval:2'
+                        }
+                    }
+                }
+            }
+
+            repository(url: RELEASE_REPOSITORY_URL) {
+                authentication(userName: NEXUS_USERNAME, password: NEXUS_PASSWORD)
+            }
+            snapshotRepository(url: SNAPSHOT_REPOSITORY_URL) {
+                authentication(userName: NEXUS_USERNAME, password: NEXUS_PASSWORD)
+            }
+        }
+    }
+}
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    failOnError false
+}
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+}
+artifacts {
+    archives androidSourcesJar
+    archives androidJavadocsJar
+}
+</#if>
